@@ -7,7 +7,7 @@ import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 
 const SignUp = () => {
-    const {data, error, mutate} = useSWR('http://localhost:3095/api/users', fetcher);
+    const {data, error, mutate} = useSWR('/api/users', fetcher);
 
     const [email, onChangeEmail] = useInput('');
     const [nickname, onChangeNickname] = useInput('');
@@ -33,7 +33,7 @@ const SignUp = () => {
             console.log('서버로 회원가입하기');
             setSignUpError('');
             setSignUpSuccess(false);
-            axios.post('http://localhost:3095/api/users', {
+            axios.post('/api/users', {
                 email, nickname, password,
             })
             .then((response: AxiosResponse<any>) => {
