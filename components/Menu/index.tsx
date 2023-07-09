@@ -11,6 +11,8 @@ const Menu: FunctionComponent<Props> = ({children, style, show, onCloseModal, cl
     const stopPropagation = useCallback((e) => {
         e.stopPropagation();
     }, []);
+
+    if(!show) return null;
     
     return (
         <CreateMenu onClick={onCloseModal}>

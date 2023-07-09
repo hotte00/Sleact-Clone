@@ -7,7 +7,6 @@ import { Link, Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-//const { data, error, revalidate, mutate } = useSWR('/api/users', fetcher);
     const {data, error, mutate} = useSWR('/api/users', fetcher, {
         dedupingInterval: 100000,
     });
@@ -22,7 +21,9 @@ const LogIn = () => {
         .post(
           '/api/users/login',
           { email, password }, 
-          {withCredentials: true}
+          {
+            withCredentials: true
+          },
         )
         .then((response) => {
             mutate(response.data, false); //Optimistic UI
@@ -39,8 +40,8 @@ const LogIn = () => {
   }
 
   if (data) {
-    return <Redirect to="/workspace/channel" />
-  };
+    return <Redirect to="/workspace/channel" />;
+  }
 
   // console.log(error, userData);
   // if (!error && userData) {
