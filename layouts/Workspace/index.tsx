@@ -5,7 +5,7 @@ import useInput from "@hooks/useinput";
 import fetcher from "@utils/fetcher";
 import axios from "axios";
 import React, { FunctionComponent, useCallback, useState } from "react"
-import { Link, Redirect, Route, Switch } from 'react-router-dom';
+import { Link, Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useSWR from "swr";
 import { 
@@ -26,7 +26,7 @@ import {
 } from "@layouts/Workspace/style";
 import gravatar from 'gravatar';
 import { Button, Input, Label } from '@pages/SignUp/style';
-import { IUser } from "@typings/db";
+import { IChannel, IUser } from "@typings/db";
 import loadable from "@loadable/component";
 
 const Channel = loadable(() => import('@pages/SignUp'));
@@ -40,14 +40,26 @@ const Workspace: FunctionComponent = () => {
     const [newWorkspace,onChangeNewWorkspace, setNewWorkSpace] = useInput('');
     const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
-    const { data:userData , error, mutate} = useSWR<IUser | false>('/api/users', fetcher);
+    const { workspace } = useParams<{workspace: string}>();
+    const { data: userData , error, mutate} = useSWR<IUser | false>(
+        '/api/users', 
+        fetcher, 
+        {
+            dedupingInterval: 2000,
+        }
+    );
+    const { data: channelData } = useSWR<IChannel[]>(
+        userData? `api/workspaces/${workspace}/channels` : null, 
+        fetcher
+    );
+
     const onLogout = useCallback(() => {
         axios
         .post('/api/users/logout', null, {
             withCredentials: true,
         })
         .then(() => {
-            mutate();
+            mutate(false, false);
         });
     }, [])
 
@@ -129,7 +141,7 @@ const Workspace: FunctionComponent = () => {
                 <Workspaces>
                     {userData?.Workspaces?.map((ws) => {
                         return (
-                            <Link key={ws.id} to={'/workspace/${}/channel/일반'}>
+                            <Link key={ws.id} to={'/workspace/${123}/channel/일반'}>
                                 <WorkspaceButton>{ws.name.slice(0,1).toUpperCase()}</WorkspaceButton>
                             </Link>
                         );
@@ -142,18 +154,19 @@ const Workspace: FunctionComponent = () => {
                     </WorkspaceName>
                     <MenuScroll>
                         <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80}}>
-                        <WorkspaceModal>
-                            <h2>Sleact</h2>
-                            <button onClick={onClickAddChannel}>채널 만들기</button>
-                            <button onClick={onLogout}>로그아웃</button>
-                        </WorkspaceModal>
+                            <WorkspaceModal>
+                                <h2>Sleact</h2>
+                                <button onClick={onClickAddChannel}>채널 만들기</button>
+                                <button onClick={onLogout}>로그아웃</button>
+                            </WorkspaceModal>
                         </Menu>
+                        {channelData?.map((v) => (<div>{v.name}</div>))}
                     </MenuScroll>
                 </Channels>
                 <Chats>
                     <Switch>
-                        <Route path="/workspace/channel" component={Channel} />
-                        <Route path="/workspace/dm" component={DirectMessage} />
+                        <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
+                        <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
                     </Switch>
                 </Chats>
             </WorkspaceWrapper>

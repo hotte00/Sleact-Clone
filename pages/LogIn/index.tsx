@@ -26,7 +26,9 @@ const LogIn = () => {
           },
         )
         .then((response) => {
-            mutate(response.data, false); //Optimistic UI
+            console.log(response.data);
+            console.log("mutated");
+            mutate(response.data); //Optimistic UI
         })
         .catch((error) => {
           setLogInError(error.response?.status === 401);
@@ -40,7 +42,7 @@ const LogIn = () => {
   }
 
   if (data) {
-    return <Redirect to="/workspace/channel" />;
+    return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
   // console.log(error, userData);

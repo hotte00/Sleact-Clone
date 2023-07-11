@@ -32,7 +32,7 @@ const CreateChannelModal: VFC<Props> = ({show, onCloseModal, setShowCreateChanne
 
     const onCreateChannel = useCallback((e)=>{
         e.preventDefault();
-        axios.post('/api/workspaces/${workspace}/channels', {
+        axios.post(`/api/workspaces/${workspace}/channels`, {
             name: newChannel,
         }, {
             withCredentials: true
